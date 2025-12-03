@@ -1,14 +1,14 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowDown, Code2, ExternalLink, FileCode2 } from "lucide-react";
+import { ArrowDown, Code2, ExternalLink, FileCode2, AlertCircle, RefreshCw } from "lucide-react";
 import { ProjectCard } from "@/components/ProjectCard";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { SearchBar } from "@/components/SearchBar";
 import { ProjectModal } from "@/components/ProjectModal";
+import { useToast } from "@/hooks/use-toast";
 import type { Project, ProjectCategory } from "@shared/schema";
-import { projectCategories } from "@shared/schema";
 
 function HeroSection() {
   const handleScrollToProjects = () => {
@@ -106,10 +106,21 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<ProjectCategory>("all");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const { toast } = useToast();
 
-  const { data: projects = [], isLoading } = useQuery<Project[]>({
+  const { data: projects = [], isLoading, isError, error, refetch } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
   });
+
+  useEffect(() => {
+    if (isError && error) {
+      toast({
+        title: "Failed to load projects",
+        description: "There was an error loading the projects. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [isError, error, toast]);
 
   const projectCounts = useMemo(() => {
     const counts: Record<ProjectCategory, number> = {
@@ -171,6 +182,25 @@ export default function Home() {
         <section id="projects" className="scroll-mt-20">
           {isLoading ? (
             <ProjectGridSkeleton />
+          ) : isError ? (
+            <div className="text-center py-16">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 mb-4">
+                <AlertCircle className="w-8 h-8 text-destructive" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2" data-testid="text-error">
+                Failed to load projects
+              </h3>
+              <p className="text-muted-foreground max-w-md mx-auto mb-4">
+                Something went wrong while loading the projects. Please try again.
+              </p>
+              <Button
+                onClick={() => refetch()}
+                data-testid="button-retry"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
           ) : filteredProjects.length === 0 ? (
             <div className="text-center py-16">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
@@ -206,7 +236,7 @@ export default function Home() {
             </div>
           )}
 
-          {!isLoading && filteredProjects.length > 0 && (
+          {!isLoading && !isError && filteredProjects.length > 0 && (
             <div className="text-center mt-8 text-sm text-muted-foreground" data-testid="text-results-count">
               Showing {filteredProjects.length} of {projects.length} projects
             </div>

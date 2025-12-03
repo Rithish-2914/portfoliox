@@ -20,6 +20,9 @@ export const projectSchema = z.object({
   features: z.array(z.string()),
   sourceCodeUrl: z.string(),
   liveDemoUrl: z.string(),
+  htmlCode: z.string().optional(),
+  cssCode: z.string().optional(),
+  jsCode: z.string().optional(),
 });
 
 export type Project = z.infer<typeof projectSchema>;
