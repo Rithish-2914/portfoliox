@@ -73,8 +73,8 @@ function CodeBlock({ code, language }: CodeBlockProps) {
         )}
       </Button>
       <ScrollArea className="h-[300px] rounded-md">
-        <pre className="bg-muted p-4 rounded-md text-sm font-mono overflow-x-auto">
-          <code className="text-foreground whitespace-pre-wrap break-words">{code}</code>
+        <pre className="bg-muted p-4 rounded-md text-sm font-mono overflow-x-auto whitespace-pre">
+          <code className="text-foreground">{code}</code>
         </pre>
       </ScrollArea>
     </div>
@@ -203,16 +203,6 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
           )}
 
           <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
-            <Button
-              size="lg"
-              variant="outline"
-              className="flex-1"
-              onClick={() => window.open(project.sourceCodeUrl, "_blank")}
-              data-testid="button-modal-source-code"
-            >
-              <Code className="w-5 h-5 mr-2" />
-              View on GitHub
-            </Button>
             <Button
               size="lg"
               className="flex-1"

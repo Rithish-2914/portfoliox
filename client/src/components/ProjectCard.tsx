@@ -65,12 +65,12 @@ export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
               className="flex-1 bg-background/90 backdrop-blur-sm"
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(project.sourceCodeUrl, "_blank");
+                onViewDetails(project);
               }}
               data-testid={`button-source-code-${project.id}`}
             >
               <Code className="w-4 h-4 mr-1" />
-              Code
+              View Code
             </Button>
             <Button
               size="sm"
