@@ -61,36 +61,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'PATCH') {
+      if (!req.body || typeof req.body !== 'object') {
+        return res.status(400).json({ message: 'Invalid request body' });
+      }
+
       const { htmlCode, cssCode, jsCode } = req.body;
 
-      const updates: string[] = [];
-      const values: any[] = [];
+      const hasHtmlCode = htmlCode !== undefined;
+      const hasCssCode = cssCode !== undefined;
+      const hasJsCode = jsCode !== undefined;
 
-      if (htmlCode !== undefined) {
-        updates.push('html_code');
-        values.push(htmlCode);
-      }
-      if (cssCode !== undefined) {
-        updates.push('css_code');
-        values.push(cssCode);
-      }
-      if (jsCode !== undefined) {
-        updates.push('js_code');
-        values.push(jsCode);
+      if (!hasHtmlCode && !hasCssCode && !hasJsCode) {
+        return res.status(400).json({ message: 'No fields to update. Provide at least one of: htmlCode, cssCode, jsCode' });
       }
 
-      if (updates.length === 0) {
-        return res.status(400).json({ message: 'No fields to update' });
+      // Build dynamic update query based on provided fields only
+      if (hasHtmlCode && hasCssCode && hasJsCode) {
+        await sql`UPDATE projects SET html_code = ${htmlCode}, css_code = ${cssCode}, js_code = ${jsCode} WHERE id = ${projectId}`;
+      } else if (hasHtmlCode && hasCssCode) {
+        await sql`UPDATE projects SET html_code = ${htmlCode}, css_code = ${cssCode} WHERE id = ${projectId}`;
+      } else if (hasHtmlCode && hasJsCode) {
+        await sql`UPDATE projects SET html_code = ${htmlCode}, js_code = ${jsCode} WHERE id = ${projectId}`;
+      } else if (hasCssCode && hasJsCode) {
+        await sql`UPDATE projects SET css_code = ${cssCode}, js_code = ${jsCode} WHERE id = ${projectId}`;
+      } else if (hasHtmlCode) {
+        await sql`UPDATE projects SET html_code = ${htmlCode} WHERE id = ${projectId}`;
+      } else if (hasCssCode) {
+        await sql`UPDATE projects SET css_code = ${cssCode} WHERE id = ${projectId}`;
+      } else if (hasJsCode) {
+        await sql`UPDATE projects SET js_code = ${jsCode} WHERE id = ${projectId}`;
       }
-
-      await sql`
-        UPDATE projects 
-        SET 
-          html_code = COALESCE(${htmlCode ?? null}, html_code),
-          css_code = COALESCE(${cssCode ?? null}, css_code),
-          js_code = COALESCE(${jsCode ?? null}, js_code)
-        WHERE id = ${projectId}
-      `;
 
       const rows = await sql`SELECT * FROM projects WHERE id = ${projectId}`;
       

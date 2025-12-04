@@ -206,9 +206,27 @@ a.more-link {
 ];
 
 async function seed() {
-  console.log('Checking if database needs seeding...');
+  console.log('Setting up database...');
   
   try {
+    // Create table if it doesn't exist
+    await sql`
+      CREATE TABLE IF NOT EXISTS projects (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        technologies TEXT NOT NULL,
+        features TEXT NOT NULL,
+        source_code_url VARCHAR(500) NOT NULL,
+        live_demo_url VARCHAR(500) NOT NULL,
+        html_code TEXT,
+        css_code TEXT,
+        js_code TEXT
+      )
+    `;
+    console.log('Table schema verified.');
+
     const existingProjects = await sql`SELECT COUNT(*) as count FROM projects`;
     const count = parseInt(existingProjects[0].count);
     

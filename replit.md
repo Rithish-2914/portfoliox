@@ -142,3 +142,54 @@ Preferred communication style: Simple, everyday language.
 - Custom theme provider with localStorage persistence
 - System preference detection via `prefers-color-scheme`
 - CSS variables for color tokens supporting light/dark modes
+
+## Vercel Deployment
+
+This project is configured for deployment on Vercel's serverless platform.
+
+### Prerequisites
+1. A Vercel account
+2. A Neon PostgreSQL database (or any PostgreSQL database with a connection URL)
+
+### Deployment Steps
+
+1. **Push to GitHub**: Push your code to a GitHub repository
+
+2. **Import to Vercel**: 
+   - Go to vercel.com and import your repository
+   - Vercel will auto-detect the framework as Vite
+
+3. **Configure Environment Variables**:
+   In your Vercel project settings, add:
+   - `DATABASE_URL` - Your PostgreSQL connection string (e.g., from Neon)
+
+4. **Deploy**: Vercel will automatically build and deploy your app
+
+### Build Configuration
+- **Build Command**: `npm run build:vercel` (runs `vite build`)
+- **Output Directory**: `dist`
+- **Framework**: Vite
+
+### API Routes
+The project includes serverless API routes in the `/api` directory:
+- `api/projects.ts` - Lists all projects with filtering and search
+- `api/projects/[id].ts` - Gets/updates individual project details
+
+### Database Seeding
+After deployment, seed the database by running:
+```bash
+npm run db:seed
+```
+Or use the database seeding mechanism in your production environment.
+
+### Project Structure for Vercel
+```
+├── api/                    # Serverless API functions
+│   ├── projects.ts         # /api/projects endpoint
+│   └── projects/
+│       └── [id].ts         # /api/projects/:id endpoint
+├── client/                 # React frontend
+├── scripts/
+│   └── seed.ts             # Database seeding script
+├── vercel.json             # Vercel configuration
+└── dist/                   # Built frontend (after build)
